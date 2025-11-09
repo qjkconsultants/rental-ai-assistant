@@ -1,0 +1,4 @@
+{
+  "NSW": ["proof_of_income", "rental_history", "ID_check"],
+  "VIC": ["employment_letter", "bank_statement", "references"]
+}

@@ -1,0 +1,39 @@
+# Ignore all .log files
+*.log
+
+# Ignore all temporary files
+*.tmp
+temp/
+
+# Ignore editor-specific files
+.vscode/
+.idea/
+*.swp
+*~
+
+# Ignore build artifacts and generated files
+build/
+dist/
+node_modules/
+target/
+*.class
+*.o
+*.pyc
+*.exe
+
+# Ignore sensitive information (e.g., credentials, API keys)
+credentials.txt
+config.local.js
+.env
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Exclude specific files from being ignored (negation)
+# Ignore all .log files except for important.log
+!important.log
+*bak
+*backup
+bak/
+backup/

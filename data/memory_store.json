@@ -1,0 +1,52 @@
+[
+  {
+    "state": "NSW",
+    "query": "rental application requirements NSW",
+    "retrieved_docs": [
+      "NSW rental applications require proof of income, identity, and rental history.",
+      "General rental guidance: ensure all documents are clear and recent.",
+      "QLD tenants should include ID, proof of employment, and previous rental references."
+    ],
+    "timestamp": "2025-11-09T09:28:05.831120+00:00"
+  },
+  {
+    "state": "NSW",
+    "query": "rental application requirements NSW",
+    "retrieved_docs": [
+      "NSW rental applications require proof of income, identity, and rental history.",
+      "General rental guidance: ensure all documents are clear and recent.",
+      "QLD tenants should include ID, proof of employment, and previous rental references."
+    ],
+    "timestamp": "2025-11-09T09:34:13.835032+00:00"
+  },
+  {
+    "state": "NSW",
+    "query": "rental application requirements NSW",
+    "retrieved_docs": [
+      "NSW rental applications require proof of income, identity, and rental history.",
+      "General rental guidance: ensure all documents are clear and recent.",
+      "QLD tenants should include ID, proof of employment, and previous rental references."
+    ],
+    "timestamp": "2025-11-09T09:45:57.827537+00:00"
+  },
+  {
+    "state": "GENERAL",
+    "query": "What documents are required for VIC rental applications?",
+    "retrieved_docs": [
+      "VIC applicants must provide passport or driver\u2019s license, income verification, and references.",
+      "NSW rental applications require proof of income, identity, and rental history.",
+      "General rental guidance: ensure all documents are clear and recent."
+    ],
+    "timestamp": "2025-11-09T11:20:45.415197+00:00"
+  },
+  {
+    "state": "GENERAL",
+    "query": "What documents are required for NSW rental applications?",
+    "retrieved_docs": [
+      "VIC applicants must provide passport or driver\u2019s license, income verification, and references.",
+      "NSW rental applications require proof of income, identity, and rental history.",
+      "General rental guidance: ensure all documents are clear and recent."
+    ],
+    "timestamp": "2025-11-09T11:25:38.895308+00:00"
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "email": "nsw.tester@example.com",
+  "first_name": "John",
+  "middle_name": "Edward",
+  "last_name": "Doe",
+  "dob": "1990-05-12",
+  "phone_number": "[REDACTED]",
+  "current_address": "1 Sydney St",
+  "previous_address": "2 Bondi Rd",
+  "employment_status": "Full-Time",
+  "employer_name": "ABC Pty Ltd",
+  "employer_contact": "[REDACTED]",
+  "income": 95000.0,
+  "drivers_license": "NSW999999",
+  "passport_number": null,
+  "rental_history": [],
+  "references": []
+}

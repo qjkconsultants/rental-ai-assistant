@@ -1,0 +1,24 @@
+(snug-rental-ai-py3.11) qaisar@Qaisars-Mini snug-rental-ai % PYTHONPATH=src poetry run python -c "from snug.core.db import DB; db = DB('snug.db'); db._migrate(); print(' ✅ Migration done')"
+{"message": "SQLite schema initialized", "event": "db_migrated", "timestamp": "2025-11-08T03:51:51.307423Z", "level": "info"}
+{"message": "SQLite schema initialized", "event": "db_migrated", "timestamp": "2025-11-08T03:51:51.308078Z", "level": "info"}
+✅ Migration done
+(snug-rental-ai-py3.11) qaisar@Qaisars-Mini snug-rental-ai % sqlite3 snug.db
+SQLite version 3.37.0 2021-12-09 01:34:53
+Enter ".help" for usage hints.
+sqlite> .tables
+applications      compliance_rules  profiles        
+audit_logs        guardrails_rules
+sqlite> PYTHONPATH=src poetry run python -c "from snug.core.db import DB; db = DB('snug.db'); db.seed_compliance_rules(); db.seed_guardrails_rules(); print('\U+2705 Seeded')"
+   ...> ;
+Error: in prepare, near "PYTHONPATH": syntax error (1)
+sqlite> .quit
+(snug-rental-ai-py3.11) qaisar@Qaisars-Mini snug-rental-ai % PYTHONPATH=src poetry run python -c "from snug.core.db import DB; db = DB('snug.db'); db.seed_compliance_rules(); db.seed_guardrails_rules(); print('✅ Seeded')"
+{"message": "SQLite schema initialized", "event": "db_migrated", "timestamp": "2025-11-08T03:52:25.609391Z", "level": "info"}
+✅ Seeded
+(snug-rental-ai-py3.11) qaisar@Qaisars-Mini snug-rental-ai % sqlite3 snug.db
+SQLite version 3.37.0 2021-12-09 01:34:53
+Enter ".help" for usage hints.
+sqlite> SELECT COUNT(*) FROM compliance_rules;
+2
+sqlite> SELECT COUNT(*) FROM guardrails_rules;
+2

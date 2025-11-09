@@ -1,0 +1,12 @@
+curl -X POST http://127.0.0.1:8000/applications \
+  -F "state=VIC" \
+  -F "email=t@example.com" \
+  -F "first_name=John" \
+  -F "last_name=Doe" \
+  -F "dob=1990-01-01" \
+  -F "phone_number=0400123456" \
+  -F "current_address=123 Main St, Melbourne" \
+  -F "employment_status=Full-time" \
+  -F "employer_name=Acme Corp" \
+  -F "employer_contact=0400987654" \
+  -F "documents=@/Users/qaisar/Documents/Resume/20250927_Resume/AI_Engineer/Snug_Proof_Of_Concept/snug-rental-ai/tests/fixtures/forms/payslip.pdf"

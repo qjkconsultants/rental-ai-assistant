@@ -1,0 +1,18 @@
+{
+  "email": "income.payslip@example.com",
+  "first_name": "Taylor",
+  "middle_name": "Lee",
+  "last_name": "Proof",
+  "dob": "1993-03-22",
+  "phone_number": "[REDACTED]",
+  "current_address": "20 George St",
+  "previous_address": "5 Hunter Rd",
+  "employment_status": "Full-Time",
+  "employer_name": "Beta Consulting Pty Ltd",
+  "employer_contact": "[REDACTED]",
+  "income": 91000.0,
+  "drivers_license": "NSW888888",
+  "passport_number": null,
+  "rental_history": [],
+  "references": []
+}

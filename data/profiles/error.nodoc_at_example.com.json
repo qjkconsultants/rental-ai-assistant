@@ -1,0 +1,18 @@
+{
+  "email": "error.nodoc@example.com",
+  "first_name": "Jamie",
+  "middle_name": "",
+  "last_name": "Sample",
+  "dob": "1991-07-15",
+  "phone_number": "[REDACTED]",
+  "current_address": "10 Test Ave",
+  "previous_address": "",
+  "employment_status": "Full-Time",
+  "employer_name": "ACME Pty Ltd",
+  "employer_contact": "[REDACTED]",
+  "income": 82000.0,
+  "drivers_license": null,
+  "passport_number": null,
+  "rental_history": [],
+  "references": []
+}

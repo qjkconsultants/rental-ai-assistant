@@ -1,0 +1,18 @@
+{
+  "email": "t@example.com",
+  "first_name": "John",
+  "middle_name": "",
+  "last_name": "Doe",
+  "dob": "1990-01-01",
+  "phone_number": "[REDACTED]",
+  "current_address": "123 Main St, Melbourne",
+  "previous_address": "",
+  "employment_status": "Full-time",
+  "employer_name": "Acme Corp",
+  "employer_contact": "[REDACTED]",
+  "income": 0.0,
+  "drivers_license": null,
+  "passport_number": null,
+  "rental_history": [],
+  "references": []
+}
