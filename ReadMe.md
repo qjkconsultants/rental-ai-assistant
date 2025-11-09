@@ -355,4 +355,4 @@ Senior Python & Data/AI Engineer
 Sydney, Australia
 
 Email: [qjkconsultants@gmail.com](mailto:qjkconsultants@gmail.com)
-LinkedIn: [linkedin.com/in/qaisar-khan](https://linkedin.com/in/qaisar-khan)
+LinkedIn: [linkedin.com/in/qaisar-khan](https://linkedin.com/in/qjkconsultants)
