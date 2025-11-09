@@ -1,166 +1,230 @@
-Excellent — here’s the fully updated and **final production-grade `README.md`** tailored for your actual repository name **`rental-ai-app`**.
+# Rental AI Assistant – Multi-State Application Validator
 
-It’s written for both **engineering credibility** (recruiters, technical reviewers, architects) and **portfolio polish**, combining clear structure, deep technical reasoning, and command-line reproducibility.
-This version integrates everything you’ve built — **AI agents, RAG, compliance, SQLite persistence, error handling, and extensibility** — into one cohesive, professional document.
+## Introduction
 
----
+The **Rental AI Assistant** is a home-built **proof-of-concept** designed to demonstrate how **AI-powered document intelligence** and **multi-agent reasoning** can automate and streamline the rental application process across multiple Australian states.
 
-# 🧠 Rental AI App – Proof of Concept
+It was developed as a personal showcase project to illustrate **real-world application of Generative AI, RAG (Retrieval-Augmented Generation), multi-agent orchestration, and data compliance validation** within a maintainable backend architecture.
 
-## 📌 Overview
-
-**Rental AI App** is a proof-of-concept that demonstrates how **AI-driven, multi-agent architecture** can automate **rental application processing** and **state-specific compliance validation** across Australia.
-The system showcases document understanding, renter profile reuse, semantic knowledge retrieval, and structured audit logging — all running locally without external AI APIs.
-
-The application simulates the entire flow of a modern rental verification backend:
-from user submission → document extraction → compliance validation → knowledge retrieval → audit logging — designed with transparency, privacy, and modular extensibility in mind.
+This README is written for **interview reviewers, engineering leads, and solution architects** who want to understand the reasoning, design, and technical competency behind the system.
 
 ---
 
-## 🎯 Objectives
+## Executive Summary
 
-This project aims to validate how **agentic AI** and **retrieval-based intelligence** can reduce manual workload in rental applications by automating validation, compliance, and reasoning.
+Rental applications vary by state in Australia — each with distinct legal and compliance requirements. Applicants often resubmit similar data repeatedly, while property managers manually verify documents, identity, and income. This results in duplication, errors, and delays.
 
-### Functional Goals
+The Rental AI Assistant addresses this inefficiency through an **AI-driven backend system** that performs:
 
-1. **Multi-State Compliance**
-   Dynamically enforce distinct rules for NSW and VIC applications.
-   Each state has its own document and field requirements.
+* **Multi-state validation** (NSW, VIC, etc.)
+* **Document extraction and semantic reasoning** using AI
+* **Reusable renter profiles** stored securely in SQLite and JSON
+* **Compliance and guardrails** to prevent privacy breaches or data inconsistencies
+* **Explainable RAG retrieval** for answering context-based queries
 
-2. **AI-Powered Document Understanding**
-   Extract and validate document contents (rental forms, payslips, bank statements, reference letters).
-
-3. **Reusable Renter Profiles**
-   Store renter profiles locally to allow data reuse across multiple applications.
-
-4. **Contextual AI Reasoning (RAG Agent)**
-   Retrieve and reason over state-specific rental rules using a vector database.
-
-5. **Explainable, Privacy-Aware AI**
-   Automatically redact sensitive data and log all processing events for transparency.
+The proof-of-concept demonstrates how a lightweight backend, powered by **FastAPI**, **LangGraph-style multi-agent orchestration**, and **Chroma VectorDB**, can deliver a scalable and compliant digital rental assistant.
 
 ---
 
-## ⚙️ Technical Context
+## Problem Context
 
-* **Challenge:** Rental applications are manual, inconsistent, and state-specific.
-* **Solution:** AI-based compliance system that automatically validates renter submissions and retrieves relevant policy context.
-* **Deployment Model:** Local, single-node FastAPI backend.
-* **Design Priorities:** Determinism, modularity, security, and transparency.
+In a typical Australian rental market:
 
----
+* Each **state’s legislation** (e.g., NSW Fair Trading vs VIC Consumer Affairs) requires different supporting documents.
+* **Property managers** spend hours cross-checking payslips, references, and identification.
+* **Renters** repeat manual entry for each new property application.
+* **Privacy laws** (such as the Privacy Act 1988) restrict how personal data can be stored or shared.
 
-## 🧱 System Architecture
+The challenge was to design a system that:
 
-```mermaid
-graph TD
-    A[Frontend / CLI / cURL] -->|FormData / JSON| B(FastAPI Backend)
-    B --> C[Multi-Agent Orchestrator]
-    C --> D[Intent Agent]
-    C --> E[Compliance Agent]
-    C --> F[Guardrails Agent]
-    C --> G[RAG Agent]
-    C --> H[Response Agent]
-    B --> I[SQLite Database]
-    B --> J[Chroma Vector Store]
-    B --> K[In-Memory Cache (TTL 900s)]
-    B --> L[Audit Logger]
-    I -->|Profiles| M[(profiles)]
-    I -->|Applications| N[(applications)]
-    I -->|Rules| O[(compliance_rules & guardrails)]
-```
-
-### Core Layers
-
-1. **FastAPI Layer:** Handles all REST endpoints, validation, and exception control.
-2. **Multi-Agent Graph:** Coordinates Intent, Compliance, Guardrails, RAG, and Response agents.
-3. **SQLite Database:** Stores renter profiles, application records, and rule metadata.
-4. **Chroma Vector Store:** Enables semantic retrieval of compliance rules.
-5. **Logging Layer:** Tracks every action (submission, validation, retrieval, audit).
+1. Handles **multi-state variations** without hard-coding each form.
+2. Allows **profile reuse** for renters across states.
+3. Integrates **AI extraction** for PDF documents.
+4. Maintains **data security, auditability, and compliance**.
+5. Demonstrates a **modern, extensible architecture** suitable for real deployment.
 
 ---
 
-## 🔧 Technology Stack
+## Objectives
 
-| Layer               | Technology                                | Purpose                             |
-| ------------------- | ----------------------------------------- | ----------------------------------- |
-| **API Framework**   | FastAPI                                   | Async REST backend                  |
-| **Database**        | SQLite                                    | Local persistence and state storage |
-| **Vector DB**       | Chroma                                    | Semantic retrieval (RAG)            |
-| **Embeddings**      | SentenceTransformers (`all-MiniLM-L6-v2`) | Encode and compare rule text        |
-| **AI Architecture** | LangGraph-inspired multi-agent system     | Deterministic orchestration         |
-| **Logging**         | Python `logging`                          | Structured audit trail              |
-| **Testing**         | Pytest + cURL                             | End-to-end validation               |
+The project was guided by five core objectives:
 
----
+1. **Multi-State Logic**
+   Support differing data requirements between states such as NSW and VIC.
 
-## 🧩 Multi-Agent Design
+2. **AI Document Processing**
+   Use lightweight OCR or stubbed AI extraction to interpret payslips, bank statements, and reference letters.
 
-| Agent               | Function              | Description                                               |
-| ------------------- | --------------------- | --------------------------------------------------------- |
-| **IntentAgent**     | Intent classification | Routes request type (application, compliance, query)      |
-| **ComplianceAgent** | Rule enforcement      | Checks required fields per state                          |
-| **GuardrailsAgent** | Data protection       | Detects and redacts PII (emails, phone numbers, licenses) |
-| **RAGAgent**        | Knowledge retrieval   | Performs semantic vector search over compliance guidance  |
-| **ResponseAgent**   | Output synthesis      | Produces structured, explainable final responses          |
+3. **Profile Reusability**
+   Store renter details persistently in a structured format, accessible across multiple submissions.
 
-Each agent operates independently but shares memory through an orchestrator that maintains message flow and ensures determinism.
+4. **Security and Compliance**
+   Include privacy guardrails, field validation, and audit logging.
+
+5. **Maintainability and Scalability**
+   Build modular services with clear boundaries, enabling future cloud or enterprise extension.
 
 ---
 
-## ⚙️ Setup Instructions
+## System Overview
 
-### 1️⃣ Environment Setup
+The application is built around a modular **FastAPI backend** that orchestrates a series of **intelligent agents** for validation, compliance, and document reasoning.
 
-```bash
-# Clone repository
-git clone https://github.com/<your-username>/rental-ai-app.git
-cd rental-ai-app
+It follows a **clean separation of concerns**:
 
-# Install dependencies
-poetry install
-poetry shell
-```
+* **API layer** (FastAPI endpoints for `/applications`, `/profiles`, `/rag/query`)
+* **Core services** (database, vector store, caching, audit)
+* **AI agents** (Intent, Compliance, Guardrails, RAG, Response)
+* **Data persistence** (SQLite, Chroma vector store, JSON memory)
+* **Testing layer** (Pytest-based integration and unit tests)
 
-### 2️⃣ Launch Application
-
-```bash
-PYTHONPATH=src poetry run uvicorn api.app:app --reload
-```
-
-**Expected Startup Output:**
-
-```
-Loading SentenceTransformer model: all-MiniLM-L6-v2
-Initializing Chroma collection: rental_kb
-Database seeded with compliance and guardrail rules.
-Application startup complete.
-```
+This separation ensures maintainability while still showcasing full-stack understanding of system interactions.
 
 ---
 
-## 🧪 API Testing via cURL
+## Core Capabilities
 
-### 1️⃣ Health Check
+1. **State-Aware Application Validation**
+   Dynamically checks for required fields based on selected state rules (e.g., NSW vs VIC).
 
-```bash
-curl -X GET http://127.0.0.1:8000/health
-```
+2. **AI-Powered Document Extraction**
+   Extracts structured data from PDFs (payslips, rental forms, bank statements) through a document service.
 
-**Expected:**
+3. **Contextual Reasoning via RAG**
+   Retrieves relevant policy snippets from a seeded vector store to support agent responses.
 
-```json
-{"status":"ok","agents":["intent","compliance","guardrails","rag","response"]}
-```
+4. **Guardrails and Privacy Detection**
+   Scans for PII such as phone numbers or emails and masks them in logs and responses.
+
+5. **Reusable Renter Profiles**
+   Saves normalized profile data, allowing pre-filling of future applications.
+
+6. **Audit and Observability**
+   Every API call, document upload, and validation event is logged in both file and database layers.
+
+7. **Resilience and Error Handling**
+   Gracefully handles missing data, malformed PDFs, or empty uploads without breaking execution.
 
 ---
 
-### 2️⃣ Submit NSW Application
+## Multi-Agent Architecture (Described)
+
+The backend uses a **LangGraph-inspired multi-agent pipeline** to divide responsibility across specialized agents:
+
+### Intent Agent
+
+Identifies the user’s request type (e.g., “submit application”, “check compliance”, “upload document”).
+
+### Canonical Agent
+
+Normalizes incoming fields, ensuring consistent formatting (e.g., phone numbers, addresses).
+
+### Compliance Agent
+
+Applies state-specific validation logic using rules loaded from `config/state_rules.json`.
+
+### Guardrails Agent
+
+Detects privacy violations or missing fields, returning structured warnings.
+
+### RAG Agent
+
+Retrieves context from Chroma VectorDB to provide legal and procedural explanations.
+
+### Response Agent
+
+Synthesizes all outputs into a clear, user-facing response or JSON payload.
+
+Each agent runs independently but shares a consistent context dictionary. This design mimics an **agentic reasoning loop** within an enterprise AI assistant while remaining transparent and testable.
+
+---
+
+## Data and Knowledge Management
+
+### SQLite Database
+
+Holds:
+
+* `profiles` – renter profiles with contact, employment, and identity details
+* `applications` – application submissions including metadata and validation results
+* `audit` – logs of all events and API interactions
+
+### Chroma Vector Store
+
+Contains embedded knowledge snippets for each state and general guidance. Example seeded data:
+
+* “NSW rental applications require proof of income, identity, and rental history.”
+* “VIC applicants must provide passport or driver’s license, income verification, and references.”
+
+### Memory Store
+
+A lightweight JSON file (`memory_store.json`) stores the in-memory context, allowing restart persistence and debugging.
+
+---
+
+## Retrieval-Augmented Generation (RAG) Flow
+
+1. The RAG Agent receives a text query (e.g., “What documents are required for NSW?”).
+2. The vector store performs a semantic search using embeddings from SentenceTransformer.
+3. Top matching knowledge snippets are returned to provide context for the response agent.
+4. The API responds with a list of retrieved documents and scores, ensuring transparency.
+
+This enables explainable AI behavior: all conclusions trace back to concrete textual knowledge sources.
+
+---
+
+## Application Lifecycle
+
+The startup lifecycle initializes several critical components:
+
+1. **Database Initialization** – SQLite tables and seed data creation
+2. **Chroma Vector Store Load** – Embedding four core knowledge statements
+3. **SentenceTransformer Load** – Inference model for semantic similarity
+4. **Memory Store Load** – Reloads cached profiles and session context
+5. **Agent Registration** – Initializes all agents with dependencies injected
+
+This ensures the system is fully operational when `/health` or `/graph/status` endpoints are queried.
+
+---
+
+## API Overview
+
+### Health Check
+
+`GET /health`
+Verifies that all agents and data layers are active.
+
+### Create Application
+
+`POST /applications`
+Accepts form data and attached PDFs.
+Performs multi-state validation, document processing, and compliance checks.
+
+### Get Profile
+
+`GET /profiles/{email}`
+Returns stored renter profile with masked sensitive fields.
+
+### Query RAG
+
+`POST /rag/query`
+Executes a semantic search over seeded documents and returns relevant knowledge.
+
+### List All Applications
+
+`GET /applications`
+Displays every stored submission with validation results and timestamps.
+
+---
+
+## Example Workflow (cURL)
+
+### Submit a NSW Application
 
 ```bash
 curl -X POST http://127.0.0.1:8000/applications \
   -F state=NSW \
-  -F email="john.doe@example.com" \
+  -F email="nsw.tester@example.com" \
   -F first_name="John" \
   -F last_name="Doe" \
   -F dob="1990-05-12" \
@@ -174,169 +238,121 @@ curl -X POST http://127.0.0.1:8000/applications \
   -F documents=@tests/fixtures/forms/NSW_rental_form.pdf
 ```
 
-✅ Demonstrates:
-
-* Multi-part upload and async file handling
-* NSW-specific compliance validation
-* Profile persistence and audit logging
-
----
-
-### 3️⃣ Reuse Profile for VIC
-
-```bash
-curl -X POST http://127.0.0.1:8000/applications \
-  -F state=VIC \
-  -F email="john.doe@example.com"
-```
-
-✅ Demonstrates:
-
-* Profile reuse across states
-* VIC-specific compliance fields
-
----
-
-### 4️⃣ Query RAG Agent
-
-```bash
-curl -X POST http://127.0.0.1:8000/rag/query \
-  -H "Content-Type: application/json" \
-  -d '{"query": "What documents are required for VIC applications?"}'
-```
-
-✅ Returns context-rich semantic results from vector store.
-
----
-
-### 5️⃣ View All Applications
-
-```bash
-curl -X GET http://127.0.0.1:8000/applications
-```
-
-✅ Lists all submitted applications, state data, and compliance findings.
-
----
-
-## 🧠 Retrieval-Augmented Reasoning (RAG)
-
-The embedded **Chroma Vector Store** holds a curated mini knowledge base:
-
-```
-- NSW rental applications require proof of income, identity, and rental history.
-- VIC applicants must provide passport or driver’s license, income verification, and references.
-- QLD tenants should include ID, proof of employment, and previous rental references.
-- General rental guidance: ensure documents are clear and recent.
-```
-
-When a query is submitted (e.g., “What documents are needed for NSW?”), the **RAG Agent** retrieves the most semantically relevant chunks with cosine similarity scoring.
-The system remains **explainable** — retrieved texts are included in the response payload.
-
----
-
-## 🧾 Compliance and Guardrails
-
-**ComplianceAgent** enforces per-state rules defined in the database.
-Each application is validated against required fields, and any missing data is returned in the `missing` list.
-
-**GuardrailsAgent** ensures sensitive data protection:
-
-* Detects PII (email, phone, license numbers)
-* Masks data in responses
-* Logs incidents for traceability
-
----
-
-## 🔐 Security and Privacy
-
-* Fully local execution (no cloud / API exposure)
-* PII redaction in logs and responses
-* Temporary file cleanup after processing
-* No external storage — only structured JSON data persisted
-* Vector embeddings contain non-identifiable textual content only
-
----
-
-## 🧾 Audit Logging
-
-All events are written through `Audit.log_event()` including:
-
-* Timestamp (UTC)
-* Action (application_submitted, profile_created)
-* Entity type
-* Details and results
-
-Example log entry:
+Expected Response:
 
 ```json
-{"event":"application_submitted","state":"NSW","timestamp":"2025-11-09T09:12:06Z"}
+{
+  "status": "ok",
+  "state": "NSW",
+  "message": "Please ensure all required ID, income, and rental history documents are provided for NSW’s rental application."
+}
 ```
 
 ---
 
-## 🧩 Extensibility Roadmap
+## Testing and Validation
 
-Future enhancements include:
+A comprehensive set of integration and unit tests verify all core functionalities:
 
-* **OCR Integration** – Replace PDF stubs with Tesseract or AWS Textract extraction.
-* **Cloud Deployment** – Move to AWS Lambda or ECS with DynamoDB and Bedrock embeddings.
-* **Front-End Portal** – React/Next.js interface for renter and property managers.
-* **Auth Layer** – Add JWT-based user authentication and role-based access.
-* **Analytics Dashboard** – Visualize applications, trends, and compliance metrics.
+* **Application Submission Tests** – Valid and invalid data handling
+* **Document Service Tests** – Successful and failed OCR parsing
+* **RAG Tests** – Query results and relevance
+* **Compliance Tests** – State-specific required fields
+* **Guardrails Tests** – PII detection and masking
+* **Profile Tests** – Persistence and retrieval from SQLite
 
----
-
-## 🧪 Automated Tests
-
-Located in `tests/integration/test_api_applications.py`
-
-| Test                          | Purpose                           |
-| ----------------------------- | --------------------------------- |
-| `test_submit_application_ok`  | Verify successful NSW application |
-| `test_multi_state_compliance` | Validate VIC vs NSW logic         |
-| `test_rag_query`              | Check retrieval accuracy          |
-| `test_profile_persistence`    | Confirm renter data reuse         |
-| `test_guardrails_detection`   | Ensure PII masking works          |
-
-All tests pass on local environment with Python 3.12.
+Each test file (e.g., `test_api_applications.py`, `test_document_service.py`) ensures end-to-end integrity of the workflow.
 
 ---
 
-## 📊 Evaluation Metrics
+## Error Handling
 
-| Metric                  | Target                 | Result          |
-| ----------------------- | ---------------------- | --------------- |
-| **API Latency**         | < 300ms                | ✅ 245ms avg     |
-| **Compliance Accuracy** | 100% (NSW/VIC)         | ✅ Verified      |
-| **Profile Persistence** | Reusable across states | ✅ Working       |
-| **RAG Relevance**       | Cosine > 0.95          | ✅ High accuracy |
-| **Error Handling**      | 100% JSON-consistent   | ✅ Passed        |
+The API handles both system and validation errors gracefully.
+Examples include:
 
----
+* Missing or malformed fields → structured “Field required” JSON responses
+* Corrupt or unreadable PDFs → `{"detail": "No /Root object! - Is this really a PDF?"}`
+* Unknown states → validation message with supported state list
 
-## 🧩 Design Principles Summary
-
-* **Local-First AI:** Operates offline with no dependencies on external models.
-* **Agentic Modularity:** Each agent can evolve independently.
-* **Explainability:** Every AI response lists retrieved sources.
-* **Reusability:** Profiles persist for reuse and validation across states.
-* **Scalability Blueprint:** Easily migrates to cloud-native production stack.
+Every failure path returns an informative, user-friendly message without exposing stack traces.
 
 ---
 
-## 🏁 Conclusion
+## Security and Privacy
 
-**Rental AI App** successfully validates the concept of an AI-assisted, privacy-preserving rental application processor.
-It combines semantic retrieval, compliance reasoning, and agentic orchestration to automate key verification tasks.
-
-This prototype lays the foundation for an enterprise-grade intelligent application workflow capable of scaling to national compliance frameworks.
+* PII (emails, phone numbers) are masked in all logs and responses.
+* Guardrails agent automatically flags unsafe or private fields.
+* Temporary uploaded documents are deleted after processing.
+* SQLite uses WAL mode to prevent data corruption.
+* No unencrypted credentials or tokens are stored.
+* All agents operate deterministically with traceable inputs and outputs.
 
 ---
 
-## 👤 Author
+## Observability and Audit
+
+Every application event is logged via the `Audit` module, recording:
+
+* Timestamp (UTC)
+* Entity type (profile, application, document)
+* Action description
+* Additional metadata
+
+Logs are stored in both `logs/app.log` and the `audit` table for cross-validation.
+This ensures compliance with data governance and reproducibility standards.
+
+---
+
+## Extensibility
+
+The project is structured for easy enhancement:
+
+* **Cloud Migration** – Replace SQLite with PostgreSQL or DynamoDB.
+* **Real OCR / AI Integration** – Connect AWS Textract or Bedrock for live extraction.
+* **Frontend Integration** – Add React, Next.js, or Streamlit UI.
+* **Authentication Layer** – Secure endpoints via OAuth or JWT.
+* **Multi-State Expansion** – Add QLD, SA, and WA rules in `state_rules.json`.
+
+The modular directory layout (`agents`, `core`, `services`, `api`) allows vertical feature addition with minimal refactoring.
+
+---
+
+## Lessons Learned
+
+1. **Agentic Design** simplifies reasoning complexity by dividing validation into specialized roles.
+2. **RAG Pipelines** provide explainable results — every message links to factual text.
+3. **State Configurability** using JSON is more maintainable than branching logic.
+4. **File IO and Async Handling** are crucial for scalability in document uploads.
+5. **Testing via cURL and Pytest** offers confidence before deployment.
+6. **Clear Logging and Masking** enable safe debugging while maintaining privacy compliance.
+
+---
+
+## Future Enhancements
+
+Planned improvements include:
+
+* Incorporating **vector-based summarization** for document insights.
+* Adding **affordability scoring** to estimate rental suitability.
+* Implementing **streaming AI responses** for interactive chat-style validation.
+* Integrating **LLM model APIs** such as OpenAI or Anthropic Bedrock.
+* Deploying on **AWS Lambda + API Gateway** with persistent S3 storage.
+
+---
+
+## Conclusion
+
+The **Rental AI Assistant – Multi-State Application Validator** showcases how a well-architected, lightweight AI system can automate document-intensive workflows through multi-agent reasoning and semantic retrieval.
+
+It highlights professional-level skills in **AI integration, backend design, state management, compliance handling, and data governance** — making it an ideal portfolio and interview demonstration project.
+
+---
+
+## Author
 
 **Qaisar Khan**
-Senior Python & Data / AI Engineer
+Senior Python & Data/AI Engineer
 Sydney, Australia
-🔗 [LinkedIn](https://www.linkedin.com/in/qjkconsultants) | [GitHub](https://github.com/qjkconsultants)
+
+Email: [qjkconsultants@gmail.com](mailto:qjkconsultants@gmail.com)
+LinkedIn: [linkedin.com/in/qaisar-khan](https://linkedin.com/in/qaisar-khan)
