@@ -49,93 +49,147 @@ The challenge was to design a system that:
 
 The project was guided by five core objectives:
 
-1. **Multi-State Logic**
-   Support differing data requirements between states such as NSW and VIC.
+1. **Multi-State Logic** – Support differing data requirements between NSW and VIC.
+2. **AI Document Processing** – Use lightweight OCR or stubbed AI extraction to interpret payslips, bank statements, and references.
+3. **Profile Reusability** – Store renter details persistently in a structured format.
+4. **Security and Compliance** – Include privacy guardrails, field validation, and audit logging.
+5. **Maintainability and Scalability** – Enable modular and cloud-ready extension.
 
-2. **AI Document Processing**
-   Use lightweight OCR or stubbed AI extraction to interpret payslips, bank statements, and reference letters.
+---
 
-3. **Profile Reusability**
-   Store renter details persistently in a structured format, accessible across multiple submissions.
+## Setup Instructions
 
-4. **Security and Compliance**
-   Include privacy guardrails, field validation, and audit logging.
+### Prerequisites
 
-5. **Maintainability and Scalability**
-   Build modular services with clear boundaries, enabling future cloud or enterprise extension.
+Install:
+
+* **Python 3.11**
+* **Poetry** for dependency management
+* **curl** and **jq** for API testing
+* macOS / Linux / Windows (via WSL)
+
+Optional for OCR:
+
+```bash
+brew install tesseract poppler
+```
+
+---
+
+### Clone the Repository
+
+```bash
+git clone git@github.com:qjkconsultants/rental-ai-assistant.git
+cd rental-ai-assistant
+```
+
+---
+
+### Install Dependencies
+
+```bash
+poetry install
+```
+
+If Poetry is not installed:
+
+```bash
+pip install poetry && poetry install
+```
+
+---
+
+### Activate the Virtual Environment
+
+```bash
+poetry shell
+```
+
+---
+
+### Initialize Database and Vector Store
+
+```bash
+PYTHONPATH=src poetry run python src/snug/core/seed_chroma.py
+```
+
+This seeds:
+
+* **Chroma VectorDB** (state & compliance knowledge)
+* **SQLite DB (`data/snug.db`)**
+* **JSON memory store** for runtime cache
+
+---
+
+### Start the API Server
+
+```bash
+PYTHONPATH=src poetry run uvicorn snug.api.app:app --reload
+```
+
+Expected log:
+
+```
+Use pytorch device_name: cpu
+Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+Chroma vector store seeded with 4 items.
+Application startup complete on http://127.0.0.1:8000
+```
+
+---
+
+### Verify Health
+
+```bash
+curl -s http://127.0.0.1:8000/health | jq
+```
+
+Expected:
+
+```json
+{"status":"ok","agents":["intent","canonical","compliance","guardrails","rag","response"]}
+```
 
 ---
 
 ## System Overview
 
-The application is built around a modular **FastAPI backend** that orchestrates a series of **intelligent agents** for validation, compliance, and document reasoning.
+A modular **FastAPI** backend orchestrates multiple **intelligent agents** for validation, compliance, and document reasoning.
 
-It follows a **clean separation of concerns**:
+Layers:
 
-* **API layer** (FastAPI endpoints for `/applications`, `/profiles`, `/rag/query`)
-* **Core services** (database, vector store, caching, audit)
-* **AI agents** (Intent, Compliance, Guardrails, RAG, Response)
-* **Data persistence** (SQLite, Chroma vector store, JSON memory)
-* **Testing layer** (Pytest-based integration and unit tests)
-
-This separation ensures maintainability while still showcasing full-stack understanding of system interactions.
+* **API layer:** `/applications`, `/profiles`, `/rag/query`
+* **Core services:** database, vector store, caching, audit
+* **AI agents:** Intent, Compliance, Guardrails, RAG, Response
+* **Persistence:** SQLite, Chroma, JSON memory
+* **Tests:** Pytest integration and unit tests
 
 ---
 
 ## Core Capabilities
 
-1. **State-Aware Application Validation**
-   Dynamically checks for required fields based on selected state rules (e.g., NSW vs VIC).
-
-2. **AI-Powered Document Extraction**
-   Extracts structured data from PDFs (payslips, rental forms, bank statements) through a document service.
-
-3. **Contextual Reasoning via RAG**
-   Retrieves relevant policy snippets from a seeded vector store to support agent responses.
-
-4. **Guardrails and Privacy Detection**
-   Scans for PII such as phone numbers or emails and masks them in logs and responses.
-
-5. **Reusable Renter Profiles**
-   Saves normalized profile data, allowing pre-filling of future applications.
-
-6. **Audit and Observability**
-   Every API call, document upload, and validation event is logged in both file and database layers.
-
-7. **Resilience and Error Handling**
-   Gracefully handles missing data, malformed PDFs, or empty uploads without breaking execution.
+1. **State-Aware Validation** based on `state_rules.json`
+2. **AI Document Extraction** for structured PDF parsing
+3. **RAG Contextual Reasoning** from Chroma vector store
+4. **Guardrails Privacy Detection** for PII masking
+5. **Profile Persistence** across sessions
+6. **Audit Logging** and observability
+7. **Robust Error Handling** for corrupt or missing inputs
 
 ---
 
-## Multi-Agent Architecture (Described)
+## Multi-Agent Architecture
 
-The backend uses a **LangGraph-inspired multi-agent pipeline** to divide responsibility across specialized agents:
+Each agent performs a specific reasoning task:
 
-### Intent Agent
+* **Intent Agent** – Identifies user intent (e.g., submit, validate).
+* **Canonical Agent** – Normalizes and standardizes fields.
+* **Compliance Agent** – Validates based on state-specific rules.
+* **Guardrails Agent** – Flags privacy or safety violations.
+* **RAG Agent** – Retrieves policy context using embeddings.
+* **Response Agent** – Synthesizes structured outputs.
 
-Identifies the user’s request type (e.g., “submit application”, “check compliance”, “upload document”).
-
-### Canonical Agent
-
-Normalizes incoming fields, ensuring consistent formatting (e.g., phone numbers, addresses).
-
-### Compliance Agent
-
-Applies state-specific validation logic using rules loaded from `config/state_rules.json`.
-
-### Guardrails Agent
-
-Detects privacy violations or missing fields, returning structured warnings.
-
-### RAG Agent
-
-Retrieves context from Chroma VectorDB to provide legal and procedural explanations.
-
-### Response Agent
-
-Synthesizes all outputs into a clear, user-facing response or JSON payload.
-
-Each agent runs independently but shares a consistent context dictionary. This design mimics an **agentic reasoning loop** within an enterprise AI assistant while remaining transparent and testable.
+All agents share a common context object, forming a transparent reasoning chain.
 
 ---
 
@@ -143,83 +197,65 @@ Each agent runs independently but shares a consistent context dictionary. This d
 
 ### SQLite Database
 
-Holds:
+Stores:
 
-* `profiles` – renter profiles with contact, employment, and identity details
-* `applications` – application submissions including metadata and validation results
-* `audit` – logs of all events and API interactions
+* Renter profiles
+* Applications
+* Audit logs
 
 ### Chroma Vector Store
 
-Contains embedded knowledge snippets for each state and general guidance. Example seeded data:
+Contains knowledge entries such as:
 
 * “NSW rental applications require proof of income, identity, and rental history.”
 * “VIC applicants must provide passport or driver’s license, income verification, and references.”
 
-### Memory Store
+### JSON Memory Store
 
-A lightweight JSON file (`memory_store.json`) stores the in-memory context, allowing restart persistence and debugging.
+`memory_store.json` preserves state context for debugging and reloading.
 
 ---
 
 ## Retrieval-Augmented Generation (RAG) Flow
 
-1. The RAG Agent receives a text query (e.g., “What documents are required for NSW?”).
-2. The vector store performs a semantic search using embeddings from SentenceTransformer.
-3. Top matching knowledge snippets are returned to provide context for the response agent.
-4. The API responds with a list of retrieved documents and scores, ensuring transparency.
+1. RAG agent receives a query (e.g., “What documents are required for NSW?”)
+2. Chroma vector search retrieves semantically similar text.
+3. Top results are fed into response synthesis.
+4. Output includes retrieved snippets for transparency.
 
-This enables explainable AI behavior: all conclusions trace back to concrete textual knowledge sources.
+This makes the reasoning explainable and auditable.
 
 ---
 
 ## Application Lifecycle
 
-The startup lifecycle initializes several critical components:
+Startup initializes:
 
-1. **Database Initialization** – SQLite tables and seed data creation
-2. **Chroma Vector Store Load** – Embedding four core knowledge statements
-3. **SentenceTransformer Load** – Inference model for semantic similarity
-4. **Memory Store Load** – Reloads cached profiles and session context
-5. **Agent Registration** – Initializes all agents with dependencies injected
+1. **Database and seed data**
+2. **Chroma Vector Store**
+3. **SentenceTransformer model**
+4. **Memory context store**
+5. **Agent registration**
 
-This ensures the system is fully operational when `/health` or `/graph/status` endpoints are queried.
+After initialization, `/health` or `/graph/status` endpoints confirm readiness.
 
 ---
 
 ## API Overview
 
-### Health Check
-
-`GET /health`
-Verifies that all agents and data layers are active.
-
-### Create Application
-
-`POST /applications`
-Accepts form data and attached PDFs.
-Performs multi-state validation, document processing, and compliance checks.
-
-### Get Profile
-
-`GET /profiles/{email}`
-Returns stored renter profile with masked sensitive fields.
-
-### Query RAG
-
-`POST /rag/query`
-Executes a semantic search over seeded documents and returns relevant knowledge.
-
-### List All Applications
-
-`GET /applications`
-Displays every stored submission with validation results and timestamps.
+| Endpoint            | Method | Purpose                                   |
+| ------------------- | ------ | ----------------------------------------- |
+| `/health`           | GET    | Verifies agents and stores                |
+| `/applications`     | POST   | Submits and validates rental applications |
+| `/profiles/{email}` | GET    | Retrieves renter profiles                 |
+| `/rag/query`        | POST   | Executes semantic queries                 |
+| `/applications`     | GET    | Lists all submissions                     |
 
 ---
 
-## Example Workflow (cURL)
+## Example Workflow
 
-### Submit a NSW Application
+### Submit NSW Application
 
 ```bash
 curl -X POST http://127.0.0.1:8000/applications \
@@ -238,113 +274,128 @@ curl -X POST http://127.0.0.1:8000/applications \
   -F documents=@tests/fixtures/forms/NSW_rental_form.pdf
 ```
 
-Expected Response:
+Response:
 
 ```json
-{
-  "status": "ok",
-  "state": "NSW",
-  "message": "Please ensure all required ID, income, and rental history documents are provided for NSW’s rental application."
-}
+{"status":"ok","state":"NSW","message":"Please ensure all required ID, income, and rental history documents are provided for NSW’s rental application."}
 ```
 
 ---
 
 ## Testing and Validation
 
-A comprehensive set of integration and unit tests verify all core functionalities:
+Run tests:
 
-* **Application Submission Tests** – Valid and invalid data handling
-* **Document Service Tests** – Successful and failed OCR parsing
-* **RAG Tests** – Query results and relevance
-* **Compliance Tests** – State-specific required fields
-* **Guardrails Tests** – PII detection and masking
-* **Profile Tests** – Persistence and retrieval from SQLite
+```bash
+PYTHONPATH=src poetry run pytest -v
+```
 
-Each test file (e.g., `test_api_applications.py`, `test_document_service.py`) ensures end-to-end integrity of the workflow.
+Includes:
+
+* Application lifecycle tests
+* Corrupt document handling
+* Guardrails privacy scans
+* RAG retrieval checks
+* Compliance enforcement
 
 ---
 
 ## Error Handling
 
-The API handles both system and validation errors gracefully.
-Examples include:
+Examples:
 
-* Missing or malformed fields → structured “Field required” JSON responses
-* Corrupt or unreadable PDFs → `{"detail": "No /Root object! - Is this really a PDF?"}`
-* Unknown states → validation message with supported state list
+* Missing field → structured error
+* Corrupt PDF → `{"detail":"No /Root object! - Is this really a PDF?"}`
+* Invalid state → guidance response listing supported states
 
-Every failure path returns an informative, user-friendly message without exposing stack traces.
+All failures are gracefully handled and logged.
 
 ---
 
 ## Security and Privacy
 
-* PII (emails, phone numbers) are masked in all logs and responses.
-* Guardrails agent automatically flags unsafe or private fields.
-* Temporary uploaded documents are deleted after processing.
-* SQLite uses WAL mode to prevent data corruption.
-* No unencrypted credentials or tokens are stored.
-* All agents operate deterministically with traceable inputs and outputs.
+* PII masked in logs and responses
+* Guardrails enforce privacy rules
+* Temp files deleted post-processing
+* SQLite uses WAL mode for durability
+* No external API keys stored
 
 ---
 
 ## Observability and Audit
 
-Every application event is logged via the `Audit` module, recording:
+All actions are logged with:
 
 * Timestamp (UTC)
-* Entity type (profile, application, document)
-* Action description
-* Additional metadata
+* Entity type
+* Action summary
+* Metadata
 
-Logs are stored in both `logs/app.log` and the `audit` table for cross-validation.
-This ensures compliance with data governance and reproducibility standards.
+Dual logging to `logs/app.log` and `audit` DB table ensures full traceability.
 
 ---
 
 ## Extensibility
 
-The project is structured for easy enhancement:
+Future enhancements:
 
-* **Cloud Migration** – Replace SQLite with PostgreSQL or DynamoDB.
-* **Real OCR / AI Integration** – Connect AWS Textract or Bedrock for live extraction.
-* **Frontend Integration** – Add React, Next.js, or Streamlit UI.
-* **Authentication Layer** – Secure endpoints via OAuth or JWT.
-* **Multi-State Expansion** – Add QLD, SA, and WA rules in `state_rules.json`.
+* Integrate **AWS Textract / Bedrock** for true AI extraction
+* Cloud DB migration (PostgreSQL / DynamoDB)
+* Frontend (Next.js, Streamlit)
+* Add new state rules (QLD, SA, WA)
+* Authentication via JWT
 
-The modular directory layout (`agents`, `core`, `services`, `api`) allows vertical feature addition with minimal refactoring.
+---
+
+## Design Decisions
+
+1. **FastAPI** for async, typed APIs
+2. **SQLite** for simplicity and ACID compliance
+3. **Chroma** for offline RAG reasoning
+4. **LangGraph-style agents** for modular design
+5. **JSON configs** for scalable state rules
+6. **Guardrails** for responsible AI
+7. **Poetry** for isolated reproducible builds
+
+---
+
+## Design Alternatives Considered
+
+| Option          | Replaced By | Reason                 |
+| --------------- | ----------- | ---------------------- |
+| Flask           | FastAPI     | Async, type validation |
+| Pinecone        | Chroma      | Local, dependency-free |
+| PostgreSQL      | SQLite      | Lightweight for demo   |
+| LLM Integration | RAG         | Reproducibility        |
+| Docker          | Poetry      | Easier local testing   |
 
 ---
 
 ## Lessons Learned
 
-1. **Agentic Design** simplifies reasoning complexity by dividing validation into specialized roles.
-2. **RAG Pipelines** provide explainable results — every message links to factual text.
-3. **State Configurability** using JSON is more maintainable than branching logic.
-4. **File IO and Async Handling** are crucial for scalability in document uploads.
-5. **Testing via cURL and Pytest** offers confidence before deployment.
-6. **Clear Logging and Masking** enable safe debugging while maintaining privacy compliance.
+1. Multi-agent reasoning clarifies AI workflows.
+2. RAG pipelines provide explainable retrieval.
+3. JSON-driven rules simplify compliance logic.
+4. Clear audit and PII handling is vital for trust.
+5. Lightweight stack accelerates experimentation.
 
 ---
 
 ## Future Enhancements
 
-Planned improvements include:
-
-* Incorporating **vector-based summarization** for document insights.
-* Adding **affordability scoring** to estimate rental suitability.
-* Implementing **streaming AI responses** for interactive chat-style validation.
-* Integrating **LLM model APIs** such as OpenAI or Anthropic Bedrock.
-* Deploying on **AWS Lambda + API Gateway** with persistent S3 storage.
+* Document summarization using embeddings
+* Rental affordability scoring
+* Real-time chat validation
+* Deployment to AWS Lambda + S3
+* RAG-powered conversational interface
 
 ---
 
 ## Conclusion
 
-The **Rental AI Assistant – Multi-State Application Validator** showcases how a well-architected, lightweight AI system can automate document-intensive workflows through multi-agent reasoning and semantic retrieval.
+The **Rental AI Assistant – Multi-State Application Validator** demonstrates how a compact, modular AI backend can automate document-heavy workflows while maintaining explainability, compliance, and audit integrity.
 
-It highlights professional-level skills in **AI integration, backend design, state management, compliance handling, and data governance** — making it an ideal portfolio and interview demonstration project.
+It showcases advanced skills in **Python 3.11**, **FastAPI**, **AI integration**, **state-based validation**, and **enterprise software design**, making it an ideal **portfolio project** for technical interviews.
 
 ---
 
@@ -355,4 +406,4 @@ Senior Python & Data/AI Engineer
 Sydney, Australia
 
 Email: [qjkconsultants@gmail.com](mailto:qjkconsultants@gmail.com)
-LinkedIn: [linkedin.com/in/qaisar-khan](https://linkedin.com/in/qjkconsultants)
+LinkedIn: [linkedin.com/in/qjkconsultants](https://linkedin.com/in/qjkconsultants)
